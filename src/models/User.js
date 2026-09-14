@@ -25,6 +25,13 @@ const userSchema = new mongoose.Schema({
     trim: true,
     select: false,
   },
+  profile_image:{
+    type: String
+  },
+  bio:{
+    type: String,
+    trim: true
+  },
   role: {
     type: String,
     enum: ["user", "admin"],

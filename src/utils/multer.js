@@ -15,9 +15,9 @@ const DataUri = require("datauri/parser");
 
 const storage = multer.memoryStorage();
 
-const imageUploads = multer({
+const upload = multer({
   storage: storage,
-  limits: { fileSize: 1024 * 1024 * 3 }, //3mb
+  limits: { fileSize: 1024 * 1024 * 5 }, //5mb
   fileFilter: (req, file, cb) => {
     const fileTypes = /jpg|jpeg|png/;
     const mimeType = fileTypes.test(file.mimetype);
@@ -30,10 +30,32 @@ const imageUploads = multer({
     }
     cb("Error: File upload only supoorts the following filetypes" + fileTypes);
   },
-}).single("image");
+}).fields([
+  { name: "profile_image", maxCount: 1 },
+  { name: "product_image", maxCount: 3 },
+]);
+
+const imageUploads = (req, res, next) => {
+  upload(req, res, (err) => {
+    if (err) return next(err);
+
+    const profileImage = req.files?.profile_image?.[0];
+    const productImage = req.files?.product_image?.[0];
+    req.file = profileImage || productImage;
+
+    next();
+  });
+};
 
 const dUri = new DataUri();
 
-const dataUri = (req)=>{
-    dUri.format(path.extname(req.file.originalname))
-} 
+const dataUri = (req) => {
+  if (!req?.file) return null;
+
+  return dUri.format(
+    path.extname(req.file.originalname).toString(),
+    req.file.buffer,
+  );
+};
+
+module.exports = { dataUri, imageUploads };
