@@ -1,10 +1,11 @@
+const crypto = require("crypto");
 const AppError = require("../utils/AppError");
 const Products = require("../models/Product");
 const { validateCreateProduct } = require("../validation/productValidation");
 const { dataUri } = require("../utils/multer");
 const { uploader } = require("../utils/cloudinary");
 
-// create new products
+// create new product
 const createNewProduct = async (req, res, next) => {
   try {
     if (!req.file) {
@@ -26,7 +27,11 @@ const createNewProduct = async (req, res, next) => {
 
     const { title, description, price } = req.body;
 
+    // Generate custom ID (e.g., PROD-A1B2C3)
+    const customId = `PROD-${crypto.randomBytes(3).toString("hex").toUpperCase()}`;
+
     const newProduct = await Products.create({
+      id: customId,
       title,
       description,
       price,
@@ -73,7 +78,8 @@ const getProductDetails = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const product = await Products.findById(id);
+    // Search by custom id field
+    const product = await Products.findOne({ id });
 
     if (!product) {
       throw new AppError("Product not found", 404);
@@ -105,7 +111,8 @@ const updateProduct = async (req, res, next) => {
       updateData.product_image = result.secure_url;
     }
 
-    const updatedProduct = await Products.findByIdAndUpdate(id, updateData, {
+    // Update by custom id field
+    const updatedProduct = await Products.findOneAndUpdate({ id }, updateData, {
       new: true,
       runValidators: true,
     });
@@ -131,16 +138,14 @@ const deleteProduct = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const product = await Products.findByIdAndDelete(id);
+    // Delete by custom id field
+    const product = await Products.findOneAndDelete({ id });
 
     if (!product) {
       throw new AppError("Product not found", 404);
     }
 
-    res.status(200).json({
-      status: "successful",
-      message: "Product deleted successfully",
-    });
+    res.status(204).send();
   } catch (error) {
     next(error);
   }

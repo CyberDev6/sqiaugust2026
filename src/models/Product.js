@@ -1,6 +1,13 @@
 const mongoose = require("mongoose");
 
 const productSchema = new mongoose.Schema({
+    id: {
+        type: String,
+        required: [true, "Please provide product ID"],
+        unique: true,
+        trim: true,
+    },
+
     title: {
         type: String,
         required: [true, "Please provide product title"],
@@ -21,17 +28,18 @@ const productSchema = new mongoose.Schema({
         max: [50000, "Price must be less than 50000"],
         required: [true, "Please provide product price"],
     },
+
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Users"
     },
+
     product_image: {
         type: String,
         required: [true, "Please provide product image"],
     },
 
-
-});
+}, { timestamps: true });
 
 const Products = mongoose.model("Products", productSchema);
 

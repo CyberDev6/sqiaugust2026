@@ -10,8 +10,8 @@ const router = express.Router();
 // Create new product
 router.route("/createproduct").post(authMiddleware.protectRoute, imageUploads, productController.createNewProduct);
 
-// Get all products
-router.route("/").get(productController.getAllProducts);
+// Get all products - updated to match class documentation
+router.route("/getallproduct").get(productController.getAllProducts);
 
 // Get, update, and delete product details by ID
 router
